@@ -13,32 +13,27 @@ def solve(L, N, M, D, W):
             heapq.heapreplace(pq, -j*W[i])
             j+=1
         
+    print N
     q1 = Queue.deque()
     while pq:
         q1.appendleft(-heapq.heappop(pq))
     #print q1
 
+    if M >= L:
+        return q1[-1]+D
+
     q2 = Queue.deque()
-    for num in q1:
-        q2.append(num)
-        if len(q2) < M:
-            continue
-        while num - q2[0] >= D:
-            q2.popleft()
+    for i in xrange(M):
+        q2.appendleft(q1.popleft()+D)
 
-    last, ans = 0, 0
-    while q2:
-        for i in xrange(M):
-            if q2:
-                t = q2.popleft()
-            else:
-                return ans + t + D - last
-        ans += t + D - last
-        last = t
-
+    for i in xrange(M, L):
+        t = max(q2.pop(), q1.popleft())
+        q2.appendleft(t+D)
+        
+    ans = q2.popleft()
     return ans
 
-f = open('in2.txt')
+f = open('./round1/laundro_matt.in')
 T = int(f.readline())
 for _ in xrange(T):
     L, N, M, D = map(int, f.readline().split())

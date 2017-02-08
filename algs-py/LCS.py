@@ -9,13 +9,15 @@ class Solution(object):
             m, n = n, m
             s1, s2 = s2, s1
         lcs = [0] * (n+1)
+        last = [0] * (n+1)
         for i in xrange(1,m+1):
-            for j in xrange(1,n+1):
+            for j in xrange(1,m+1):
                 if s1[i-1] == s2[j-1]:
-                    lcs[i] = lcs[i-1]+1
+                    lcs[j] = last[j-1]+1
                 else:
-                    lcs[i] = max(lcs[i-1], lcs[i])
-        return lcs[n]
+                    lcs[j] = max(lcs[j-1], last[j])
+            last, lcs = lcs, last
+        return last[n]
 
     def longestCommonSubsequence(self, s1, s2):
         # length only, dp, time O(mn), mem O(mn)
@@ -53,3 +55,7 @@ if __name__ == '__main__':
     s2 = 'AEDFHR'
     print test.longestCommonSubsequence(s1, s2)
     print test.longestCommonSubsequenceLength(s1, s2)
+    print test.longestCommonSubsequence('abcabc', 'cbacba')
+    print test.longestCommonSubsequenceLength('abcabc', 'cbacba')
+    print test.longestCommonSubsequence('abcabc', 'cbacba')
+    print test.longestCommonSubsequenceLength('aaba', 'abaa')

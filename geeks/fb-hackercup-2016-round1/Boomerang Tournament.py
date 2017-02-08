@@ -1,6 +1,25 @@
-import Queue
-import copy
+# create bits->next_bits
+bits_dcts = [{} for i in xrange(17)]
+for t in xrange(5):
+    bits = [1<<i for i in xrange(2**t)]
+    bits_dct = bits_dcts[2**t]
+    #print bits
+    for i in xrange(t):
+        new_bits = set([])
+        for b1 in bits:
+            bits_dct[b1] = []
+            for b2 in bits:
+                if b1 & b2 == 0:
+                    bits_dct[b1].append(b1|b2)
+                    new_bits.add(b1|b2)
+        bits = new_bits
 
+#print map(bin, bits_dcts[2][0b1])
+#print map(bin, bits_dcts[4][0b1])
+#print map(bin, bits_dcts[16][0b1])
+#print map(bin, bits_dcts[16][0b11001100])
+
+# max ~ 1800*500*16*8 ~ 2^27
 def solve(N, M):
     if N == 1:
         return [[1, 1]]
@@ -13,49 +32,43 @@ def solve(N, M):
 
     rank = {16: [9,5,3,2,1], 8:[5,3,2,1], 4:[3,2,1], 2:[2,1]}
     
-    def parse(arr):
-        #print arr
-        t = copy.copy(arr)
-        for i in xrange(N >> 1):
-            for j in xrange(N >> (1+i)):
-                if M[t[2*j]][t[2*j+1]]:
-                    t[j] = t[2*j]
-                    ans[t[2*j]][0] = max(ans[t[2*j]][0], i+1)
-                else:
-                    t[j] = t[2*j+1]
-                    ans[t[2*j+1]][0] = max(ans[t[2*j+1]][0], i+1)
+    dp = {}
+    bits = []
+    for i in xrange(N):
+        dp[1<<i] = [0]*N
+        dp[1<<i][i] = 1
+        bits += [1<<i]
 
-
-    def dfs(arr):
-        if len(arr) == N:
-            parse(arr)
-            return
-        
-        for i in xrange(N):
-            if not marked[i]:
-                marked[i] = 1
-                arr.append(i)
-                break
-
-        for j in xrange(i, N):
-            if not marked[j]:
-                marked[j] = 1
-                arr.append(j)
-                dfs(arr)
-                arr.pop()
-                marked[j] = 0
-
-        arr.pop()
-        marked[i] = 0
-    
-    dfs(Queue.deque())
+    c = 1
+    #print map(bin, bits)
+    while len(bits) > 1:
+        new_bits = set([])
+        for b1 in bits:
+            #print len(bits), len(bits_dcts[N][b1])
+            for b2 in bits_dcts[N][b1]: 
+                if b2 not in dp:
+                    dp[b2] = [0]*N
+                for i in xrange(N):
+                    for j in xrange(i, N):
+                        #print bin(b1), bin(b2^b1), bin(b2)
+                        if dp[b1][i] and dp[b2^b1][j]:
+                            if M[i][j]:
+                                dp[b2][i] = 1
+                                ans[i][0] = max(ans[i][0], c)
+                            else:
+                                dp[b2][j] = 1
+                                ans[j][0] = max(ans[j][0], c)
+                            new_bits.add(b2)
+        bits = new_bits
+        c += 1
+        #print map(bin,new_bits)
+        #print len(bits)
     
     for i in xrange(N):
-        #print ans[i][0]
         ans[i][0] = rank[N][ans[i][0]]
     return ans
 
-f = open('in4.txt')
+f = open('./round1/boomerang_tournament.in')
 T = int(f.readline())
 for _ in xrange(T):
     N = int(f.readline())
