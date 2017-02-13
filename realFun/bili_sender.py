@@ -11,7 +11,7 @@ for line in f.read().split(';'):
     name, value = line.strip().split('=', 1)
     cookies[name] = value
 
-def sendDanmuku(content):
+def sendDanmuku(roomid, content):
     content = content.strip()
     if not content: return
     params = {
@@ -20,7 +20,7 @@ def sendDanmuku(content):
         "mode":1,
         "msg":content,
         "rnd":int(time.time()),
-        "roomid":90012
+        "roomid":roomid
         }
     r = requests.post(SEND_URL, data=params, cookies=cookies)
     #print r.status_code, r.content
@@ -28,4 +28,4 @@ def sendDanmuku(content):
 if __name__ == '__main__':
     while 1:
         content = raw_input()
-        sendDanmuku(content)
+        sendDanmuku(90012, content)
